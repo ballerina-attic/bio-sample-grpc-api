@@ -4,7 +4,6 @@ import sys
 import time
 
 from github import Github, InputGitAuthor, GithubException
-from bs4 import BeautifulSoup
 
 ballerina_bot_username = os.environ['BALLERINA_BOT_USERNAME']
 ballerina_bot_token = os.environ['BALLERINA_BOT_TOKEN']
@@ -14,68 +13,51 @@ ballerina_reviewer_bot_token = os.environ['BALLERINA_REVIEWER_BOT_TOKEN']
 github = Github(ballerina_bot_token)
 
 def main():
-    repo = github.get_repo('ballerina-platform/ballerina-dev-website', 'master')
-    html_file = repo.get_contents('index.html')
-    html_file = html_file.decoded_content.decode('utf-8')
-
-    # write the bal file content
-    with open('index.html', 'w') as write_obj:
-        write_obj.write(html_file)
-
-    with open('index.html','r') as soup1:
-        html_doc = soup1.read()
-        soup = BeautifulSoup(html_doc, 'html.parser')
-
     with open('src/scripts/grpc_api.bal', 'r') as action_obj:
-        action_bbe = action_obj.readlines()
+        updated_bal_file = action_obj.read()
+        with open('grpc-api.md', 'a') as write_obj:
+            write_obj.write("```\n")
+            write_obj.write(updated_bal_file + "\n")
+            write_obj.write("```")
+            write_obj.close()
+        action_obj.close()
 
-    old_text = soup.find('div', {'id':'grpc-api'})
-
-    with open('index.html','r') as read_obj:
-        html_doc_lines = read_obj.readlines()
-
-    with open('edited_index.html', 'a') as new_html:
-        for line in html_doc_lines[0:old_text.code.sourceline]:
-            new_html.write(line)
-        for line in action_bbe[0:len(action_bbe)]:
-            new_html.write(line)
-        new_html.write("\n")
-        for line in html_doc_lines[old_text.code.sourceline+len(old_text.code.string.strip().splitlines()):len(html_doc_lines)]:
-            new_html.write(line)
-
-    # write the proto file content
-    with open('edited_index.html','r') as soup2:
-        html_doc = soup2.read()
-        soup = BeautifulSoup(html_doc, 'html.parser')
-
-    with open('src/scripts/grpc_api.proto', 'r') as action_obj:
-        action_bbe = action_obj.readlines()
-
-    old_text = soup.find('div', {'id':'grpc-api-proto'})
-
-    with open('edited_index.html','r') as read_obj:
-        html_doc_lines = read_obj.readlines()
-
-    with open('edited_index_1.html', 'a') as new_html:
-        for line in html_doc_lines[0:old_text.code.sourceline]:
-            new_html.write(line)
-        for line in action_bbe[0:len(action_bbe)]:
-            new_html.write(line)
-        new_html.write("\n")
-        for line in html_doc_lines[old_text.code.sourceline+len(old_text.code.string.strip().splitlines()):len(html_doc_lines)]:
-            new_html.write(line)
-
-    with open('edited_index_1.html', 'r') as commit_obj:
+    with open('grpc-api.md','r') as commit_obj:
         updated_file = commit_obj.read()
-
+        
     commit_message = 'Update Ballerina in Action samples'
     try:
-        update = commit_file('index.html', updated_file, 'update-grpc-api', commit_message)[0]
+        update = commit_file('components/home-page/bal-action/grpc-api.md', updated_file, 'update-grpc-api', commit_message)[0]
 
         if update:
             pr_title = '[Automated] Update Ballerina in Action samples'
-            pr_body = 'Update Ballerina in Action samples for source code changes in gRPC API'
+            pr_body = 'Update Ballerina in Action samples for source code changes in `gRPC API`'
             head_branch = 'update-grpc-api'
+            open_pull_request(pr_title, pr_body, head_branch)
+
+    except GithubException as e:
+        print('Error occurred while committing changes to ballerina-dev-website', e)
+
+    with open('src/scripts/grpc_api.proto', 'r') as action_obj:
+        updated_bal_file = action_obj.read()
+        with open('grpc-api-proto.md', 'a') as write_obj:
+            write_obj.write("```\n")
+            write_obj.write(updated_bal_file + "\n")
+            write_obj.write("```")
+            write_obj.close()
+        action_obj.close()
+
+    with open('grpc-api-proto.md','r') as commit_obj:
+        updated_file = commit_obj.read()
+        
+    commit_message = 'Update Ballerina in Action samples'
+    try:
+        update = commit_file('components/home-page/bal-action/grpc-api-proto.md', updated_file, 'update-grpc-api-proto', commit_message)[0]
+
+        if update:
+            pr_title = '[Automated] Update Ballerina in Action samples'
+            pr_body = 'Update Ballerina in Action samples for source code changes in `gRPC API`'
+            head_branch = 'update-grpc-api-proto'
             open_pull_request(pr_title, pr_body, head_branch)
 
     except GithubException as e:
