@@ -27,7 +27,7 @@ def main():
         
     commit_message = 'Update Ballerina in Action samples'
     try:
-        update = commit_file('components/home-page/bal-action/grpc-api.md', updated_file, 'update-grpc-api', commit_message)[0]
+        update = commit_file('components/home-page/bal-action/action-bbe/grpc-api.md', updated_file, 'update-grpc-api', commit_message)[0]
 
         if update:
             pr_title = '[Automated] Update Ballerina in Action samples'
@@ -52,7 +52,7 @@ def main():
         
     commit_message = 'Update Ballerina in Action samples'
     try:
-        update = commit_file('components/home-page/bal-action/grpc-api-proto.md', updated_file, 'update-grpc-api-proto', commit_message)[0]
+        update = commit_file('components/home-page/bal-action/action-bbe/grpc-api-proto.md', updated_file, 'update-grpc-api-proto', commit_message)[0]
 
         if update:
             pr_title = '[Automated] Update Ballerina in Action samples'
